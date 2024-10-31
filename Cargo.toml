@@ -4,9 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rodio = "0.19.0"
-serde = { version = "1.0", features = ["derive"] }
-toml = "0.8.19"
+clap = { version = "4.5.20", features = ["derive"] }
+config = "0.14.1"
 dirs = "5.0.1"
 indoc = "2"
-
+regex = "1.11.1"
+rodio = "0.19.0"
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.41.0", features = ["full"] }
+toml = "0.8.19"

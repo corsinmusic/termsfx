@@ -1,29 +1,27 @@
 #![allow(unused_parens)]
 
-use std::env;
+mod cli;
+mod client;
+mod daemon;
+mod settings;
 
-mod audio;
-mod config;
+use cli::{Cli, Commands};
 
-fn main() {
-    config::create_new_config_if_not_exists();
+#[tokio::main]
+async fn main() {
+    let cli = Cli::parse();
 
-    let args: Vec<String> = env::args().collect();
-
-    if (args.len() < 2) {
-        eprintln!("Usage: termsfx <command>");
-        return;
-    }
-
-    let command_input = &args[1..].join(" ");
-
-    let config = config::load_config();
-
-    for command_config in config.commands {
-        if (command_config.command == *command_input) {
-            let audio_file_path = command_config.audio_file_path;
-            audio::play_audio(audio_file_path.as_str());
-            return;
+    match &cli.command {
+        Commands::Daemon { config } => {
+            if let Err(e) = daemon::run(config).await {
+                eprintln!("Error runnig daemon: {:?}", e);
+            }
+        }
+        Commands::Send { command_input } => {
+            let cmd = command_input.join(" ");
+            if let Err(e) = client::send_command(&cmd).await {
+                eprintln!("Error sending command: {:?}", e);
+            }
         }
     }
 }
