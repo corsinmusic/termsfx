@@ -1,0 +1,17 @@
+#!/bin/bash
+
+odin build ./src \
+  -debug \
+  -thread-count:8 \
+  -vet \
+  -strict-style \
+  -vet-cast \
+  -vet-semicolon \
+  -vet-unused \
+  -vet-unused-imports \
+  -vet-unused-variables \
+  -vet-using-param \
+  -vet-using-stmt \
+  -warnings-as-errors \
+  -disallow-do \
+  -out:build/termsfx_debug

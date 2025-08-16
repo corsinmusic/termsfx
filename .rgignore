@@ -1,0 +1,2 @@
+# .rgignore, add things like binaries etc.
+build/
