@@ -4,7 +4,6 @@ odin build ./src \
   -thread-count:8 \
   -show-timings \
   -vet \
-  -strict-style \
   -vet-cast \
   -vet-semicolon \
   -vet-unused \

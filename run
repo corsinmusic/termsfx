@@ -3,10 +3,10 @@
 odin run ./src \
   -debug \
   -thread-count:8 \
-  -strict-style \
   -vet-cast \
   -vet-semicolon \
   -vet-using-param \
   -vet-using-stmt \
   -disallow-do \
-  -out:build/main
+  -out:build/main \
+  -- "$@"

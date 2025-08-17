@@ -1,8 +1,8 @@
 package utils
 
-import "core:path/filepath"
 import "core:fmt"
 import "core:os"
+import "core:path/filepath"
 
 resolve_path :: proc(file_path: string) -> (path: string) {
 	home_dir: string
@@ -20,10 +20,12 @@ resolve_path :: proc(file_path: string) -> (path: string) {
 	if len(file_path) >= 1 && file_path[0] == '~' {
 		// Remove '~' and any following separator, then append to home_dir
 		rest_of_path := file_path[1:] if len(file_path) > 1 else ""
+
 		if len(rest_of_path) > 0 &&
 		   (rest_of_path[0] == '/' || rest_of_path[0] == '\\') {
 			rest_of_path = rest_of_path[1:] // Skip the separator
 		}
+
 		resolved_path = fmt.tprintf(
 			"%s%s%s",
 			home_dir,

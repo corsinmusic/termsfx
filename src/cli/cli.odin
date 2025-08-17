@@ -1,6 +1,5 @@
 package cli
 
-import "core:fmt"
 import "core:os"
 
 CliCommand :: union {
@@ -20,7 +19,11 @@ TooFewArguments :: distinct string
 UnknownCommand :: distinct string
 UnknownError :: distinct string
 
-parse_cli_command :: proc() -> (command: CliCommand, err: ParseCliCommandError) {
+parse_cli_command :: proc(
+) -> (
+	command: CliCommand,
+	err: ParseCliCommandError,
+) {
 	args := os.args[1:]
 
 	if len(args) <= 0 {
@@ -30,20 +33,20 @@ parse_cli_command :: proc() -> (command: CliCommand, err: ParseCliCommandError) 
 	command_arg := args[0]
 
 	switch command_arg {
-	case "play": {
-		if len(args) < 2 {
-			return nil, TooFewArguments{}	
-		}
+		case "play":
+			{
+				if len(args) < 2 {
+					return nil, TooFewArguments{}
+				}
 
-		play_command := args[1]
+				play_command := args[1]
 
-		return PlayCommand {
-			command = play_command,
-		}, nil
-	}
-	case: {
-		return nil, UnknownCommand{}
-	}
+				return PlayCommand{command = play_command}, nil
+			}
+		case:
+			{
+				return nil, UnknownCommand{}
+			}
 	}
 
 	return nil, UnknownError{}

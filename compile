@@ -3,7 +3,6 @@
 odin build ./src \
   -debug \
   -thread-count:8 \
-  -strict-style \
   -vet-cast \
   -vet-semicolon \
   -vet-using-param \
