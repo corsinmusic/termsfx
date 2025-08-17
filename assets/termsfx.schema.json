@@ -5,11 +5,21 @@
     "$schema": {
       "type": "string"
     },
+    "disable": {
+      "type": "boolean",
+      "description": "Disable all sounds.",
+      "default": false
+    },
     "sounds": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
+          "disable": {
+            "type": "boolean",
+            "description": "Disable this sound.",
+            "default": false
+          },
           "name": {
             "type": "string",
             "description": "Optional name"

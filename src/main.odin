@@ -36,6 +36,11 @@ main :: proc() {
 	}
 	defer free(user_config)
 
+	if user_config.is_disabled {
+		output("User configuration is disabled. Exiting.")
+		os.exit(0)
+	}
+
 	// Handle the parsed command
 	switch c in cli_args.command {
 		case cli.PlayCommand:
@@ -43,6 +48,10 @@ main :: proc() {
 				found_sound := false
 
 				for sound in user_config.sounds {
+					if sound.is_disabled {
+						continue
+					}
+
 					for lookup in sound.lookups {
 						// Check if the regex matches the command lookup
 						_, matches := r.match(lookup, c.lookup)

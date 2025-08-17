@@ -65,7 +65,7 @@ parse_cli_args :: proc() -> (^CliArgs, ParseCliArgsError) {
 		if current_arg == "play" {
 			if len(remaining_args) == 0 {
 				return nil, TooFewArguments {
-					message = "Expected a command after 'play'",
+					message = "Expected a lookup string after 'play'",
 				}
 			}
 

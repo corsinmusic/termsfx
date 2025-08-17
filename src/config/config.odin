@@ -7,7 +7,8 @@ import "core:strings"
 import r "core:text/regex"
 
 UserConfig :: struct {
-	sounds: []SoundConfig,
+	is_disabled: bool,
+	sounds:      []SoundConfig,
 }
 
 SoundConfig :: struct {
@@ -16,6 +17,7 @@ SoundConfig :: struct {
 	audio_file_path: string,
 	start_offset:    f64,
 	duration:        f64,
+	is_disabled:     bool,
 }
 
 ReadUserConfigError :: union {
@@ -58,6 +60,8 @@ read_user_config :: proc(
 
 	root := json_contents.(json.Object)
 
+	is_disabled :=
+		root["disable"] == nil ? false : root["disable"].(json.Boolean)
 	sounds: [dynamic]SoundConfig
 	for c in root["sounds"].(json.Array) {
 		name := c.(json.Object)["name"].(json.String)
@@ -67,6 +71,8 @@ read_user_config :: proc(
 			c.(json.Object)["startOffset"] == nil ? 0.0 : c.(json.Object)["startOffset"].(json.Float)
 		duration :=
 			c.(json.Object)["duration"] == nil ? 0.0 : c.(json.Object)["duration"].(json.Float)
+		is_disabled :=
+			c.(json.Object)["disable"] == nil ? false : c.(json.Object)["disable"].(json.Boolean)
 
 
 		lookup_regexes: [dynamic]r.Regular_Expression
@@ -98,11 +104,13 @@ read_user_config :: proc(
 				audio_file_path = strings.clone(absolute_audio_file_path),
 				start_offset = start_offset,
 				duration = duration,
+				is_disabled = is_disabled,
 			},
 		)
 	}
 
 	user_config := new(UserConfig)
+	user_config.is_disabled = is_disabled
 	user_config.sounds = sounds[:]
 	return user_config, nil
 }
