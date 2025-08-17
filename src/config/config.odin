@@ -6,18 +6,38 @@ import "core:path/filepath"
 import "core:strings"
 import r "core:text/regex"
 
+UserConfigSrc :: struct {
+	disable: bool,
+	items:   []struct {
+		disable: bool,
+		regexes: []string,
+		sounds:  []struct {
+			disable:        bool,
+			audioFilePath:  string,
+			startOffset:    i64,
+			duration:       i64,
+			chanceModifier: i64,
+		},
+	},
+}
+
 UserConfig :: struct {
 	is_disabled: bool,
+	items:       []ItemConfig,
+}
+
+ItemConfig :: struct {
+	is_disabled: bool,
+	regexes:     []r.Regular_Expression,
 	sounds:      []SoundConfig,
 }
 
 SoundConfig :: struct {
-	name:            string,
-	lookups:         []r.Regular_Expression,
 	audio_file_path: string,
-	start_offset:    f64,
-	duration:        f64,
+	start_offset:    i64,
+	duration:        i64,
 	is_disabled:     bool,
+	chance_modifier: i64,
 }
 
 ReadUserConfigError :: union {
@@ -53,65 +73,70 @@ read_user_config :: proc(
 	}
 	defer delete(config_contents)
 
-	json_contents, json_parse_err := json.parse(config_contents)
-	if json_parse_err != .None {
-		return new(UserConfig), ParseFailed{}
-	}
-
-	root := json_contents.(json.Object)
-
-	is_globally_disabled :=
-		root["disable"] == nil ? false : root["disable"].(json.Boolean)
-	sounds: [dynamic]SoundConfig
-	for c in root["sounds"].(json.Array) {
-		name := c.(json.Object)["name"].(json.String)
-		lookups := c.(json.Object)["lookups"].(json.Array)
-		audio_file_path := c.(json.Object)["audioFilePath"].(json.String)
-		start_offset :=
-			c.(json.Object)["startOffset"] == nil ? 0.0 : c.(json.Object)["startOffset"].(json.Float)
-		duration :=
-			c.(json.Object)["duration"] == nil ? 0.0 : c.(json.Object)["duration"].(json.Float)
-		is_disabled :=
-			c.(json.Object)["disable"] == nil ? false : c.(json.Object)["disable"].(json.Boolean)
-
-
-		lookup_regexes: [dynamic]r.Regular_Expression
-		for l in lookups {
-			lookup := l.(json.String)
-			lookup_regex, regex_create_error := r.create(
-				strings.join({"^", lookup, "$"}, ""),
-				{.Unicode},
-			)
-			if regex_create_error != nil {
-				continue // Skip this sound if regex creation fails
-			}
-			append(&lookup_regexes, lookup_regex)
-		}
-
-		absolute_audio_file_path, create_absolute_audio_file_path_ok :=
-			filepath.abs(
-				strings.join({filepath.dir(config_file_path), audio_file_path}, "/"),
-			)
-		if !create_absolute_audio_file_path_ok {
-			return new(UserConfig), AudioFileNotFound{audio_file_path}
-		}
-
-		append(
-			&sounds,
-			SoundConfig {
-				name = name,
-				lookups = lookup_regexes[:],
-				audio_file_path = strings.clone(absolute_audio_file_path),
-				start_offset = start_offset,
-				duration = duration,
-				is_disabled = is_disabled,
-			},
-		)
-	}
+	user_config_src := UserConfigSrc{}
+	json.unmarshal(config_contents, &user_config_src)
 
 	user_config := new(UserConfig)
-	user_config.is_disabled = is_globally_disabled
-	user_config.sounds = sounds[:]
+	user_config.is_disabled = user_config_src.disable
+
+	items := [dynamic]ItemConfig{}
+
+	for item_src in user_config_src.items {
+		item := ItemConfig {
+			is_disabled = item_src.disable,
+			regexes     = []r.Regular_Expression{},
+			sounds      = []SoundConfig{},
+		}
+
+		// Compile regexes
+		{
+			regexes := [dynamic]r.Regular_Expression{}
+			for regex in item_src.regexes {
+				compiled_regex, regex_create_error := r.create(
+					strings.join({"^", regex, "$"}, ""),
+					{.Unicode},
+				)
+				if regex_create_error != nil {
+					continue // Skip this regex if creation fails
+				}
+				append(&regexes, compiled_regex)
+			}
+			item.regexes = regexes[:]
+		}
+
+		// Map sounds
+		{
+			sounds := [dynamic]SoundConfig{}
+			for sound_src in item_src.sounds {
+				absolute_audio_file_path, create_absolute_audio_file_path_ok :=
+					filepath.abs(
+						strings.join(
+							{filepath.dir(config_file_path), sound_src.audioFilePath},
+							"/",
+						),
+					)
+				if !create_absolute_audio_file_path_ok {
+					return new(
+						UserConfig,
+					), AudioFileNotFound{audio_file_path = sound_src.audioFilePath}
+				}
+
+				sound := SoundConfig {
+						audio_file_path = absolute_audio_file_path,
+						start_offset    = sound_src.startOffset,
+						duration        = sound_src.duration,
+						is_disabled     = sound_src.disable,
+						chance_modifier = sound_src.chanceModifier == 0 ? 1 : sound_src.chanceModifier,
+					}
+				append(&sounds, sound)
+			}
+			item.sounds = sounds[:]
+		}
+
+		append(&items, item)
+	}
+	user_config.items = items[:]
+
 	return user_config, nil
 }
 

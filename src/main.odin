@@ -1,6 +1,7 @@
 package main
 
 import "core:fmt"
+import "core:math/rand"
 import "core:os"
 import r "core:text/regex"
 
@@ -52,16 +53,30 @@ main :: proc() {
 			{
 				found_sound := false
 
-				for sound in user_config.sounds {
-					if sound.is_disabled {
+				for item in user_config.items {
+					if item.is_disabled {
 						continue
 					}
 
-					for lookup in sound.lookups {
+					for regex in item.regexes {
 						// Check if the regex matches the command lookup
-						_, matches := r.match(lookup, c.lookup)
+						_, matches := r.match(regex, c.lookup)
 						if matches {
 							found_sound = true
+
+							chance_modified_indexes: [dynamic]int
+							for sound, i in item.sounds {
+								if sound.is_disabled {
+									continue
+								}
+
+								for _ in 0 ..< sound.chance_modifier {
+									append(&chance_modified_indexes, i)
+								}
+							}
+							random_index := rand.choice(chance_modified_indexes[:])
+							sound := item.sounds[random_index]
+
 							ok, err := player.play_audio(
 								{
 									audio_file_path = sound.audio_file_path,
@@ -69,9 +84,11 @@ main :: proc() {
 									duration = sound.duration,
 								},
 							)
+
 							if !ok {
 								output("Error playing audio:", err)
 							}
+
 							break
 						}
 					}

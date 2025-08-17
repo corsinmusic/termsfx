@@ -11,8 +11,8 @@ AUDIO_SAMPLE_RATE :: 0 // 0 means use device's native sample rate
 
 PlayAudioRequest :: struct {
 	audio_file_path: string,
-	start_offset:    f64,
-	duration:        f64,
+	start_offset:    i64,
+	duration:        i64,
 }
 
 PlayAudioError :: union {
@@ -108,7 +108,7 @@ play_audio :: proc(
 	}
 
 	if request.start_offset > 0 {
-		ma.sound_seek_to_second(&sound, f32(request.start_offset * 0.001)) // Convert ms to seconds
+		ma.sound_seek_to_second(&sound, f32(request.start_offset) * 0.001) // Convert ms to seconds
 	}
 
 	// Wait until the sound finishes playing

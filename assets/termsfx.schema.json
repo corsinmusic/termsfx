@@ -10,7 +10,7 @@
       "description": "Disable all sounds.",
       "default": false
     },
-    "sounds": {
+    "items": {
       "type": "array",
       "items": {
         "type": "object",
@@ -20,38 +20,56 @@
             "description": "Disable this sound.",
             "default": false
           },
-          "name": {
-            "type": "string",
-            "description": "Optional name"
-          },
-          "lookups": {
+          "regexes": {
             "type": "array",
             "items": {
               "type": "string",
               "description": "The lookup regex that triggers the sound. Example: 'git commit.*' => plays sound for 'git commit' or 'git commit -m \"message\"'."
             }
           },
-          "audioFilePath": {
-            "type": "string",
-            "description": "The file path to the audio file. Path is relative to this config file.",
-            "pattern": "^.+\\.(mp3|wav)$"
-          },
-          "startOffset": {
-            "type": "number",
-            "description": "Optional start offset in milliseconds for the audio file. Defaults to 0.",
-            "default": 0
-          },
-          "duration": {
-            "type": "number",
-            "description": "Optional duration in milliseconds. If specified, the sound will stop after this duration.",
-            "default": 0
+          "sounds": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "audioFilePath": {
+                  "type": "string",
+                  "description": "The file path to the audio file. Path is relative to this config file.",
+                  "pattern": "^.+\\.(mp3|wav)$"
+                },
+                "startOffset": {
+                  "type": "number",
+                  "description": "Optional start offset in milliseconds for the audio file. Defaults to 0.",
+                  "default": 0
+                },
+                "duration": {
+                  "type": "number",
+                  "description": "Optional duration in milliseconds. If specified, the sound will stop after this duration.",
+                  "default": 0
+                },
+                "disable": {
+                  "type": "boolean",
+                  "description": "Disable this random sound.",
+                  "default": false
+                },
+                "chanceModifier": {
+                  "type": "number",
+                  "description": "If one item has a chanceModifer of 2 and another has 1, the first item will be twice as likely to be played.",
+                  "default": 1
+                }
+              },
+              "required": ["audioFilePath"],
+              "additionalProperties": false
+            },
+            "default": [],
+            "additionalProperties": false
           }
         },
-        "required": ["lookups", "audioFilePath"],
+        "required": ["regexes", "sounds"],
         "additionalProperties": false
       }
     }
   },
-  "required": ["sounds"],
+  "required": ["items"],
   "additionalProperties": false
 }
