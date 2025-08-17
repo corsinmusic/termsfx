@@ -1,2 +1,6 @@
 # .rgignore, add things like binaries etc.
 build/
+
+!example_config/
+example_config/*.mp3
+example_config/*.wav
