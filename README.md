@@ -34,13 +34,15 @@ touch ~/.config/termsfx/termsfx.json
 ```
 # Example folder contents
 ~/.config/termsfx/
-  - termsfx.json
   - kill.mp3
-  - whoami.wav
+  - npm.mp3
   - sl.mp3
+  - termsfx.json
+  - whoami.wav
   - git/
-    - git_push.mp3
     - git_commit.wav
+    - git_commit_alternate.mp3
+    - git_push.mp3
 
 ```
 
@@ -49,33 +51,60 @@ touch ~/.config/termsfx/termsfx.json
 {
   "$schema": "https://raw.githubusercontent.com/corsinmusic/termsfx/refs/heads/main/assets/termsfx.schema.json",
   "disable": false,
-  "sounds": [
+  "items": [
     {
-      "name": "whoami",
-      "lookups": ["whoami.*"],
-      "audioFilePath": "whoami.wav",
-      "startOffset": 100
+      "regexes": ["npm\\s.*install[\\s]?.*", "npm\\s.*i[\\s]?.*"],
+      "sounds": [
+        {
+          "audioFilePath": "./npm.mp3"
+        }
+      ]
     },
     {
-      "name": "kill",
-      "lookups": ["kill\\s.+", "killall\\s.+"],
-      "audioFilePath": "kill.mp3"
+      "regexes": ["whoami.*"],
+      "sounds": [
+        {
+          "audioFilePath": "./whoami.wav",
+          "startOffset": 100
+        }
+      ]
     },
     {
-      "name": "git push",
-      "lookups": ["git push.*"],
-      "audioFilePath": "./git/git_push.mp3"
+      "regexes": ["kill\\s.+", "killall\\s.+"],
+      "sounds": [
+        {
+          "audioFilePath": "./kill.mp3"
+        }
+      ]
     },
     {
-      "name": "git commit",
-      "lookups": ["git commit.*"],
-      "audioFilePath": "./git/git_commit.wav"
+      "regexes": ["git push.*"],
+      "sounds": [
+        {
+          "audioFilePath": "./git/git_push.mp3"
+        }
+      ]
     },
     {
-      "name": "sl",
-      "lookups": ["sl"],
-      "audioFilePath": "sl.mp3",
-      "duration": 15000
+      "regexes": ["git commit.*"],
+      "sounds": [
+        {
+          "audioFilePath": "./git/git_commit.wav",
+          "chanceModifier": 2
+        },
+        {
+          "audioFilePath": "./git/git_commit_alternate.mp3"
+        }
+      ]
+    },
+    {
+      "regexes": ["sl"],
+      "sounds": [
+        {
+          "audioFilePath": "./sl.mp3",
+          "duration": 15000
+        }
+      ]
     }
   ]
 }
@@ -93,8 +122,11 @@ Commands:
 	help, --help, -h      Show this help message
 ```
 
+Example:
+
 ```bash
-termsfx play "git push --force" # Play the sound for the lookup regex "git push.*"
+# Play the sound for the regex "git push.*"
+termsfx play "git push --force"
 ```
 
 ### Sending zsh commands to termsfx in the background
@@ -105,12 +137,13 @@ preexec() {
     # $1 contains the command as typed by the user
     if [[ -n "$1" ]]; then
         # Pass the command to termsfx
-        (termsfx --no-output "$1" &) >/dev/null 2>&1
+        (termsfx --no-output play "$1" &) >/dev/null 2>&1
     fi
 }
 ```
 
 ```bash
-# Typing `git push` in the terminal will now automatically play the sound configured for the lookup regex "git push.*"
+# Typing `git push` in the terminal will now automatically play the sound
+# configured for the regex "git push.*"
 git push
 ```
