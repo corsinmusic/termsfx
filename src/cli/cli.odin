@@ -6,26 +6,26 @@ DEFAULT_CONFIG_FILE_PATH :: "~/.config/termsfx/termsfx.json"
 
 CliArgs :: struct {
 	config_file_path: string,
+	silent:           bool,
 	command:          CliCommand,
+	unknown_args:     []UnknownArgument,
 }
 
 CliCommand :: union {
 	PlayCommand,
 }
-
 PlayCommand :: struct {
-	command: string,
+	lookup: string,
+}
+UnknownArgument :: struct {
+	arg: string,
 }
 
 ParseCliArgsError :: union {
 	TooFewArguments,
-	UnknownArgument,
 }
 TooFewArguments :: struct {
 	message: string,
-}
-UnknownArgument :: struct {
-	arg: string,
 }
 
 parse_cli_args :: proc() -> (^CliArgs, ParseCliArgsError) {
@@ -37,6 +37,7 @@ parse_cli_args :: proc() -> (^CliArgs, ParseCliArgsError) {
 	}
 
 	cli_args := new(CliArgs)
+	unknown_args := new([dynamic]UnknownArgument)
 
 	remaining_args := args[:]
 	for len(remaining_args) > 0 {
@@ -56,6 +57,11 @@ parse_cli_args :: proc() -> (^CliArgs, ParseCliArgsError) {
 			continue
 		}
 
+		if current_arg == "--silent" || current_arg == "-s" {
+			cli_args.silent = true
+			continue
+		}
+
 		if current_arg == "play" {
 			if len(remaining_args) == 0 {
 				return nil, TooFewArguments {
@@ -65,19 +71,21 @@ parse_cli_args :: proc() -> (^CliArgs, ParseCliArgsError) {
 
 			command := remaining_args[0]
 			cli_args.command = PlayCommand {
-				command = command,
+				lookup = command,
 			}
 			remaining_args = remaining_args[1:]
 
 			continue
 		}
 
-		return nil, UnknownArgument{current_arg}
+		append(unknown_args, UnknownArgument{arg = current_arg})
 	}
 
 	if cli_args.config_file_path == "" {
 		cli_args.config_file_path = DEFAULT_CONFIG_FILE_PATH
 	}
+
+	cli_args.unknown_args = unknown_args[:]
 
 	return cli_args, nil
 }

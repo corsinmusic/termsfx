@@ -4,25 +4,29 @@ import "core:encoding/json"
 import "core:os"
 import "core:path/filepath"
 import "core:strings"
+import r "core:text/regex"
 
 UserConfig :: struct {
-	commands: []TermCommandConfig,
+	sounds: []SoundConfig,
 }
 
-TermCommandConfig :: struct {
-	command:         string,
+SoundConfig :: struct {
+	name:            string,
+	lookups:         []r.Regular_Expression,
 	audio_file_path: string,
+	start_offset:    f64,
+	duration:        f64,
 }
 
 ReadUserConfigError :: union {
 	FileReadFailed,
 	ParseFailed,
-	AudioFilePathInvalid,
+	AudioFileNotFound,
 }
 FileReadFailed :: struct {
 	file_path: string,
 }
-AudioFilePathInvalid :: struct {
+AudioFileNotFound :: struct {
 	audio_file_path: string,
 }
 ParseFailed :: struct {}
@@ -54,29 +58,52 @@ read_user_config :: proc(
 
 	root := json_contents.(json.Object)
 
-	commands: [dynamic]TermCommandConfig
-	for c in root["commands"].(json.Array) {
-		command := c.(json.Object)["command"].(json.String)
+	sounds: [dynamic]SoundConfig
+	for c in root["sounds"].(json.Array) {
+		name := c.(json.Object)["name"].(json.String)
+		lookups := c.(json.Object)["lookups"].(json.Array)
 		audio_file_path := c.(json.Object)["audioFilePath"].(json.String)
+		start_offset :=
+			c.(json.Object)["startOffset"] == nil ? 0.0 : c.(json.Object)["startOffset"].(json.Float)
+		duration :=
+			c.(json.Object)["duration"] == nil ? 0.0 : c.(json.Object)["duration"].(json.Float)
 
-		audio_file_path, ok = filepath.abs(
-			strings.join({filepath.dir(config_file_path), audio_file_path}, "/"),
-		)
-		if !ok {
-			return new(UserConfig), AudioFilePathInvalid{audio_file_path}
+
+		lookup_regexes: [dynamic]r.Regular_Expression
+		for l in lookups {
+			lookup := l.(json.String)
+			lookup_regex, regex_create_error := r.create(
+				strings.join({"^", lookup, "$"}, ""),
+				{.Unicode},
+			)
+			if regex_create_error != nil {
+				continue // Skip this sound if regex creation fails
+			}
+			append(&lookup_regexes, lookup_regex)
+		}
+
+		absolute_audio_file_path, create_absolute_audio_file_path_ok :=
+			filepath.abs(
+				strings.join({filepath.dir(config_file_path), audio_file_path}, "/"),
+			)
+		if !create_absolute_audio_file_path_ok {
+			return new(UserConfig), AudioFileNotFound{audio_file_path}
 		}
 
 		append(
-			&commands,
-			TermCommandConfig {
-				command = strings.clone(command),
-				audio_file_path = strings.clone(audio_file_path),
+			&sounds,
+			SoundConfig {
+				name = name,
+				lookups = lookup_regexes[:],
+				audio_file_path = strings.clone(absolute_audio_file_path),
+				start_offset = start_offset,
+				duration = duration,
 			},
 		)
 	}
 
 	user_config := new(UserConfig)
-	user_config.commands = commands[:]
+	user_config.sounds = sounds[:]
 	return user_config, nil
 }
 

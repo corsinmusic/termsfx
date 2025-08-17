@@ -5,26 +5,43 @@
     "$schema": {
       "type": "string"
     },
-    "commands": {
+    "sounds": {
       "type": "array",
       "items": {
         "type": "object",
         "properties": {
-          "command": {
+          "name": {
             "type": "string",
-            "description": "The exact command string that triggers the sound"
+            "description": "Optional name"
+          },
+          "lookups": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "The lookup regex that triggers the sound. Example: 'git commit.*' => plays sound for 'git commit' or 'git commit -m \"message\"'."
+            }
           },
           "audioFilePath": {
             "type": "string",
-            "description": "The file path to the audio file associated with the command. Path is relative to this config file.",
-            "pattern": "^[a-zA-Z0-9_\\-\\.]+\\.(mp3|wav)$"
+            "description": "The file path to the audio file. Path is relative to this config file.",
+            "pattern": "^.+\\.(mp3|wav)$"
+          },
+          "startOffset": {
+            "type": "number",
+            "description": "Optional start offset in milliseconds for the audio file. Defaults to 0.",
+            "default": 0
+          },
+          "duration": {
+            "type": "number",
+            "description": "Optional duration in milliseconds. If specified, the sound will stop after this duration.",
+            "default": 0
           }
         },
-        "required": ["command", "audioFilePath"],
+        "required": ["lookups", "audioFilePath"],
         "additionalProperties": false
       }
     }
   },
-  "required": ["commands"],
+  "required": ["sounds"],
   "additionalProperties": false
 }

@@ -9,11 +9,18 @@ import ma "vendor:miniaudio"
 AUDIO_CHANNELS :: 0 // 0 means use device's native channel count
 AUDIO_SAMPLE_RATE :: 0 // 0 means use device's native sample rate
 
+PlayAudioRequest :: struct {
+	audio_file_path: string,
+	start_offset:    f64,
+	duration:        f64,
+}
+
 PlayAudioError :: union {
 	FailedToInitializeEngine,
 	FailedToStartEngine,
 	FailedToInitializeSound,
 	FailedToStartSound,
+	FailedToSeekSound,
 }
 FailedToInitializeEngine :: struct {
 	message: string,
@@ -27,9 +34,12 @@ FailedToInitializeSound :: struct {
 FailedToStartSound :: struct {
 	message: string,
 }
+FailedToSeekSound :: struct {
+	message: string,
+}
 
 play_audio :: proc(
-	audio_file_path: string,
+	request: PlayAudioRequest,
 ) -> (
 	ok: bool,
 	err: PlayAudioError,
@@ -52,7 +62,8 @@ play_audio :: proc(
 	defer ma.engine_uninit(&engine) // Clean up engine when done
 
 	// Start the engine
-	if result := ma.engine_start(&engine); result != .SUCCESS {
+	result := ma.engine_start(&engine)
+	if result != .SUCCESS {
 		return false, FailedToStartEngine {
 			message = fmt.tprintf("Failed to start miniaudio engine: %v\n", result),
 		}
@@ -61,18 +72,19 @@ play_audio :: proc(
 	// Initialize the sound from a file (replace "path/to/audio.mp3" with your file path)
 	sound: ma.sound
 	flags: bit_set[ma.sound_flag;u32] = {.DECODE}
-	if result := ma.sound_init_from_file(
+	result = ma.sound_init_from_file(
 		&engine,
-		strings.clone_to_cstring(audio_file_path),
+		strings.clone_to_cstring(request.audio_file_path),
 		flags,
 		nil,
 		nil,
 		&sound,
-	); result != .SUCCESS {
+	)
+	if result != .SUCCESS {
 		return false, FailedToInitializeSound {
 			message = fmt.tprintf(
 				"Failed to initialize sound from file '%s': %v\n",
-				audio_file_path,
+				request.audio_file_path,
 				result,
 			),
 		}
@@ -80,16 +92,28 @@ play_audio :: proc(
 	defer ma.sound_uninit(&sound) // Clean up sound when done
 
 	// Start playing the sound
-	if result := ma.sound_start(&sound); result != .SUCCESS {
+	result = ma.sound_start(&sound)
+	if result != .SUCCESS {
 		fmt.eprintf("Failed to start sound: %v\n", result)
 		return false, FailedToStartSound {
 			message = fmt.tprintf("Failed to start sound: %v\n", result),
 		}
 	}
 
+	if request.duration > 0 {
+		ma.sound_set_stop_time_in_milliseconds(
+			&sound,
+			u64(request.start_offset + request.duration), // Convert seconds to ms
+		) // Convert ms to seconds)
+	}
+
+	if request.start_offset > 0 {
+		ma.sound_seek_to_second(&sound, f32(request.start_offset * 0.001)) // Convert ms to seconds
+	}
+
 	// Wait until the sound finishes playing
-	for !ma.sound_at_end(&sound) {
-		time.sleep(100 * time.Millisecond) // Poll every 100ms to avoid busy-waiting
+	for ma.sound_is_playing(&sound) {
+		time.sleep(17 * time.Millisecond) // Poll every 50ms to avoid busy-waiting
 	}
 
 	return true, nil
