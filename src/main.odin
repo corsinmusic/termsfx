@@ -8,8 +8,8 @@ import "cli"
 import "config"
 import "player"
 
-// NOTE: if silent, won't print anything to stdout or stderr
-is_silent := false
+// NOTE: if no_output, won't print anything to stdout or stderr
+no_output := false
 
 main :: proc() {
 	// Parse command line arguments
@@ -20,7 +20,7 @@ main :: proc() {
 	}
 	defer free(cli_args)
 
-	is_silent = cli_args.silent
+	no_output = cli_args.no_output
 
 	for arg in cli_args.unknown_args {
 		output("Unknown argument:", arg.arg)
@@ -43,6 +43,11 @@ main :: proc() {
 
 	// Handle the parsed command
 	switch c in cli_args.command {
+		case cli.PrintHelp:
+			{
+				output(c.help_text)
+				os.exit(0)
+			}
 		case cli.PlayCommand:
 			{
 				found_sound := false
@@ -83,7 +88,7 @@ main :: proc() {
 }
 
 output :: proc(args: ..any) {
-	if !is_silent {
-		fmt.println(args)
+	if !no_output {
+		fmt.println(..args)
 	}
 }

@@ -60,7 +60,7 @@ read_user_config :: proc(
 
 	root := json_contents.(json.Object)
 
-	is_disabled :=
+	is_globally_disabled :=
 		root["disable"] == nil ? false : root["disable"].(json.Boolean)
 	sounds: [dynamic]SoundConfig
 	for c in root["sounds"].(json.Array) {
@@ -110,7 +110,7 @@ read_user_config :: proc(
 	}
 
 	user_config := new(UserConfig)
-	user_config.is_disabled = is_disabled
+	user_config.is_disabled = is_globally_disabled
 	user_config.sounds = sounds[:]
 	return user_config, nil
 }
