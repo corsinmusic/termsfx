@@ -41,7 +41,7 @@ parse_cli_args :: proc() -> (^CliArgs, ParseCliArgsError) {
 Usage: termsfx [options] [command]
 Options:
 	--config, -c <path>   Specify the config file path
-	--no-output, no       Supress output to stdout/stderr
+	--no-output, -no      Supress output to stdout/stderr
 Commands:
 	play "<lookup>"       Play a sound based on the lookup string
 	help, --help, -h      Show this help message

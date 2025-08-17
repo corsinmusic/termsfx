@@ -78,8 +78,8 @@ main :: proc() {
 				}
 
 				if !found_sound {
-					output(
-						"Warn: sound not found in configuration for given lookup",
+					outputf(
+						"Warn: sound not found in configuration for given lookup '%s'",
 						c.lookup,
 					)
 				}
@@ -90,5 +90,11 @@ main :: proc() {
 output :: proc(args: ..any) {
 	if !no_output {
 		fmt.println(..args)
+	}
+}
+
+outputf :: proc(format: string, args: ..any) {
+	if !no_output {
+		fmt.printfln(format, ..args)
 	}
 }

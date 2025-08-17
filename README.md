@@ -1,6 +1,8 @@
 # termsfx
 
-Terminal Sound Effects tool to play user configured sounds when user defined regex patterns match a given string.
+Tool that plays sounds based on a given string. If the string matches a user defined regex, the corresponding sound will be played.\
+This can be used to play sounds for terminal commands, e.g. when you type `git push`,
+a sound will be played if you have configured a sound with a regex like `git push.*`.
 
 ## Requirements
 
@@ -62,12 +64,12 @@ touch ~/.config/termsfx/termsfx.json
     {
       "name": "git push",
       "lookups": ["git push.*"],
-      "audioFilePath": "git/git_push.mp3"
+      "audioFilePath": "./git/git_push.mp3"
     },
     {
       "name": "git commit",
       "lookups": ["git commit.*"],
-      "audioFilePath": "git/git_commit.wav"
+      "audioFilePath": "./git/git_commit.wav"
     },
     {
       "name": "sl",
@@ -85,7 +87,7 @@ touch ~/.config/termsfx/termsfx.json
 Usage: termsfx [options] [command]
 Options:
 	--config, -c <path>   Specify the config file path
-	--no-output, no       Supress output to stdout/stderr
+	--no-output, -no      Supress output to stdout/stderr
 Commands:
 	play "<lookup>"       Play a sound based on the lookup string
 	help, --help, -h      Show this help message
