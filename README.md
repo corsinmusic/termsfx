@@ -29,7 +29,21 @@ touch ~/.config/termsfx/termsfx.json
 
 [Schema](https://raw.githubusercontent.com/corsinmusic/termsfx/refs/heads/main/assets/termsfx.schema.json)
 
+```
+# Example folder contents
+~/.config/termsfx/
+  - termsfx.json
+  - kill.mp3
+  - whoami.wav
+  - sl.mp3
+  - git/
+    - git_push.mp3
+    - git_commit.wav
+
+```
+
 ```json
+// ~/.config/termsfx/termsfx.json
 {
   "$schema": "https://raw.githubusercontent.com/corsinmusic/termsfx/refs/heads/main/assets/termsfx.schema.json",
   "disable": false,
@@ -48,12 +62,12 @@ touch ~/.config/termsfx/termsfx.json
     {
       "name": "git push",
       "lookups": ["git push.*"],
-      "audioFilePath": "git_push.mp3"
+      "audioFilePath": "git/git_push.mp3"
     },
     {
       "name": "git commit",
       "lookups": ["git commit.*"],
-      "audioFilePath": "git_commit.wav"
+      "audioFilePath": "git/git_commit.wav"
     },
     {
       "name": "sl",
@@ -79,4 +93,22 @@ Commands:
 
 ```bash
 termsfx play "git push --force" # Play the sound for the lookup regex "git push.*"
+```
+
+### Sending zsh commands to termsfx in the background
+
+```bash
+# ~/.zshrc
+preexec() {
+    # $1 contains the command as typed by the user
+    if [[ -n "$1" ]]; then
+        # Pass the command to termsfx
+        (termsfx --no-output "$1" &) >/dev/null 2>&1
+    fi
+}
+```
+
+```bash
+# Typing `git push` in the terminal will now automatically play the sound configured for the lookup regex "git push.*"
+git push
 ```
