@@ -42,7 +42,6 @@ SoundConfig :: struct {
 
 ReadUserConfigError :: union {
 	FileReadFailed,
-	ParseFailed,
 	AudioFileNotFound,
 }
 FileReadFailed :: struct {
@@ -51,7 +50,6 @@ FileReadFailed :: struct {
 AudioFileNotFound :: struct {
 	audio_file_path: string,
 }
-ParseFailed :: struct {}
 
 read_user_config :: proc(
 	file_path: string,
@@ -141,14 +139,14 @@ read_user_config :: proc(
 }
 
 resolve_home_dir :: proc(path: string) -> string {
-	if strings.starts_with(path, "~/") || strings.starts_with(path, "$HOME/") {
+	if strings.starts_with(path, "~/") {
 
 		env_home_var := "HOME"
 		if os.OS == .Windows {
 			env_home_var = "USERPROFILE"
 		}
 
-		home_dir := os.get_env("HOME")
+		home_dir := os.get_env(env_home_var)
 		if home_dir == "" {
 			return path // Return original path if HOME is not set
 		}
