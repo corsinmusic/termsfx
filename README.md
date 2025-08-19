@@ -65,7 +65,8 @@ touch ~/.config/termsfx/termsfx.json
       "sounds": [
         {
           "audioFilePath": "./whoami.wav",
-          "startOffset": 100
+          "startOffset": 100,
+          "volumeModifier": 0.5
         }
       ]
     },
@@ -93,7 +94,8 @@ touch ~/.config/termsfx/termsfx.json
           "chanceModifier": 2
         },
         {
-          "audioFilePath": "./git/git_commit_alternate.mp3"
+          "audioFilePath": "./git/git_commit_alternate.mp3",
+          "volumeModifier": 2
         }
       ]
     },
