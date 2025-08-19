@@ -77,7 +77,7 @@ main :: proc() {
 							random_index := rand.choice(chance_modified_indexes[:])
 							sound := item.sounds[random_index]
 
-							ok, err := player.play_audio(
+							err := player.play_audio(
 								{
 									audio_file_path = sound.audio_file_path,
 									start_offset = sound.start_offset,
@@ -87,7 +87,7 @@ main :: proc() {
 								},
 							)
 
-							if !ok {
+							if err != nil {
 								output("Error playing audio:", err)
 							}
 

@@ -17,35 +17,19 @@ PlayAudioRequest :: struct {
 	global_volume_modifier: f32,
 }
 
-PlayAudioError :: union {
+PlayAudioErrorType :: enum {
 	FailedToInitializeEngine,
 	FailedToStartEngine,
 	FailedToInitializeSound,
 	FailedToStartSound,
 	FailedToSeekSound,
 }
-FailedToInitializeEngine :: struct {
-	message: string,
-}
-FailedToStartEngine :: struct {
-	message: string,
-}
-FailedToInitializeSound :: struct {
-	message: string,
-}
-FailedToStartSound :: struct {
-	message: string,
-}
-FailedToSeekSound :: struct {
+PlayAudioError :: struct {
+	type:    PlayAudioErrorType,
 	message: string,
 }
 
-play_audio :: proc(
-	request: PlayAudioRequest,
-) -> (
-	ok: bool,
-	err: PlayAudioError,
-) {
+play_audio :: proc(request: PlayAudioRequest) -> (err: Maybe(PlayAudioError)) {
 	// Initialize the audio engine
 	engine_config := ma.engine_config_init()
 	engine_config.channels = AUDIO_CHANNELS
@@ -55,7 +39,8 @@ play_audio :: proc(
 	engine: ma.engine
 	result := ma.engine_init(&engine_config, &engine)
 	if result != .SUCCESS {
-		return false, FailedToInitializeEngine {
+		return PlayAudioError {
+			type = .FailedToInitializeEngine,
 			message = fmt.tprintf(
 				"Failed to initialize miniaudio engine: %v\n",
 				result,
@@ -67,7 +52,8 @@ play_audio :: proc(
 	// Start the engine
 	result = ma.engine_start(&engine)
 	if result != .SUCCESS {
-		return false, FailedToStartEngine {
+		return PlayAudioError {
+			type = .FailedToStartEngine,
 			message = fmt.tprintf("Failed to start miniaudio engine: %v\n", result),
 		}
 	}
@@ -84,7 +70,8 @@ play_audio :: proc(
 		&sound,
 	)
 	if result != .SUCCESS {
-		return false, FailedToInitializeSound {
+		return PlayAudioError {
+			type = .FailedToInitializeSound,
 			message = fmt.tprintf(
 				"Failed to initialize sound from file '%s': %v\n",
 				request.audio_file_path,
@@ -101,7 +88,8 @@ play_audio :: proc(
 	result = ma.sound_start(&sound)
 	if result != .SUCCESS {
 		fmt.eprintf("Failed to start sound: %v\n", result)
-		return false, FailedToStartSound {
+		return PlayAudioError {
+			type = .FailedToStartSound,
 			message = fmt.tprintf("Failed to start sound: %v\n", result),
 		}
 	}
@@ -122,5 +110,5 @@ play_audio :: proc(
 		time.sleep(17 * time.Millisecond) // Poll every 50ms to avoid busy-waiting
 	}
 
-	return true, nil
+	return nil
 }
