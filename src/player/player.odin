@@ -53,7 +53,8 @@ play_audio :: proc(
 	engine_config.listenerCount = 1 // Use one listener for spatial audio (optional)
 
 	engine: ma.engine
-	if result := ma.engine_init(&engine_config, &engine); result != .SUCCESS {
+	result := ma.engine_init(&engine_config, &engine)
+	if result != .SUCCESS {
 		return false, FailedToInitializeEngine {
 			message = fmt.tprintf(
 				"Failed to initialize miniaudio engine: %v\n",
@@ -64,7 +65,7 @@ play_audio :: proc(
 	defer ma.engine_uninit(&engine) // Clean up engine when done
 
 	// Start the engine
-	result := ma.engine_start(&engine)
+	result = ma.engine_start(&engine)
 	if result != .SUCCESS {
 		return false, FailedToStartEngine {
 			message = fmt.tprintf("Failed to start miniaudio engine: %v\n", result),

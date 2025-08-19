@@ -51,6 +51,7 @@ touch ~/.config/termsfx/termsfx.json
 {
   "$schema": "https://raw.githubusercontent.com/corsinmusic/termsfx/refs/heads/main/assets/termsfx.schema.json",
   "disable": false,
+  "globalVolumeModifier": 0.8,
   "items": [
     {
       "regexes": ["npm\\s.*install[\\s]?.*", "npm\\s.*i[\\s]?.*"],
