@@ -13,6 +13,7 @@ PlayAudioRequest :: struct {
 	audio_file_path: string,
 	start_offset:    i64,
 	duration:        i64,
+	volume_modifier: f32,
 }
 
 PlayAudioError :: union {
@@ -90,6 +91,8 @@ play_audio :: proc(
 		}
 	}
 	defer ma.sound_uninit(&sound) // Clean up sound when done
+
+	ma.sound_set_volume(&sound, request.volume_modifier)
 
 	// Start playing the sound
 	result = ma.sound_start(&sound)

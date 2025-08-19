@@ -82,6 +82,7 @@ main :: proc() {
 									audio_file_path = sound.audio_file_path,
 									start_offset = sound.start_offset,
 									duration = sound.duration,
+									volume_modifier = sound.volume_modifier,
 								},
 							)
 

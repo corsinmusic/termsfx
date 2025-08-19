@@ -17,6 +17,7 @@ UserConfigSrc :: struct {
 			startOffset:    i64,
 			duration:       i64,
 			chanceModifier: i64,
+			volumeModifier: f32,
 		},
 	},
 }
@@ -38,6 +39,7 @@ SoundConfig :: struct {
 	duration:        i64,
 	is_disabled:     bool,
 	chance_modifier: i64,
+	volume_modifier: f32,
 }
 
 ReadUserConfigError :: union {
@@ -125,6 +127,7 @@ read_user_config :: proc(
 						duration        = sound_src.duration,
 						is_disabled     = sound_src.disable,
 						chance_modifier = sound_src.chanceModifier == 0 ? 1 : sound_src.chanceModifier,
+						volume_modifier = sound_src.volumeModifier == 0.0 ? 1.0 : sound_src.volumeModifier,
 					}
 				append(&sounds, sound)
 			}
