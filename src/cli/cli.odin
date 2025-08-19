@@ -15,6 +15,7 @@ CliArgs :: struct {
 CliCommand :: union {
 	PlayCommand,
 	PrintHelp,
+	CacheCommand,
 }
 PlayCommand :: struct {
 	lookup: string,
@@ -22,6 +23,17 @@ PlayCommand :: struct {
 PrintHelp :: struct {
 	help_text: string,
 }
+CacheCommand :: union {
+	CacheInitCommand,
+	CachePurgeCommand,
+}
+CacheInitCommand :: struct {
+	// No additional fields needed for initialization command
+}
+CachePurgeCommand :: struct {
+	// No additional fields needed for purge command
+}
+
 UnknownArgument :: struct {
 	arg: string,
 }

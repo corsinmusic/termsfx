@@ -103,6 +103,20 @@ main :: proc() {
 					)
 				}
 			}
+		case cli.CacheCommand:
+			{
+				cache_command := c
+				switch cc in cache_command {
+					case cli.CacheInitCommand:
+						{
+							// TODO
+						}
+					case cli.CachePurgeCommand:
+						{
+							// TODO
+						}
+				}
+			}
 	}
 }
 

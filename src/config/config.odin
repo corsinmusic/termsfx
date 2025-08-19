@@ -10,9 +10,10 @@ UserConfigSrc :: struct {
 	disable:              bool,
 	globalVolumeModifier: f32,
 	items:                []struct {
-		disable: bool,
-		regexes: []string,
-		sounds:  []struct {
+		disable:              bool,
+		alwaysDifferentSound: bool,
+		regexes:              []string,
+		sounds:               []struct {
 			disable:        bool,
 			audioFilePath:  string,
 			startOffset:    i64,
@@ -30,9 +31,10 @@ UserConfig :: struct {
 }
 
 ItemConfig :: struct {
-	is_disabled: bool,
-	regexes:     []r.Regular_Expression,
-	sounds:      []SoundConfig,
+	is_disabled:                bool,
+	always_use_different_sound: bool,
+	regexes:                    []r.Regular_Expression,
+	sounds:                     []SoundConfig,
 }
 
 SoundConfig :: struct {
@@ -86,9 +88,10 @@ read_user_config :: proc(
 
 	for item_src in user_config_src.items {
 		item := ItemConfig {
-			is_disabled = item_src.disable,
-			regexes     = []r.Regular_Expression{},
-			sounds      = []SoundConfig{},
+			is_disabled                = item_src.disable,
+			always_use_different_sound = item_src.alwaysDifferentSound,
+			regexes                    = []r.Regular_Expression{},
+			sounds                     = []SoundConfig{},
 		}
 
 		// Compile regexes

@@ -25,6 +25,11 @@
             "description": "Disable this sound.",
             "default": false
           },
+          "alwaysDifferentSound": {
+            "type": "boolean",
+            "description": "If true, a different sound will be played each time the regex matches. If false, the same sound can be played multiple times in a row.",
+            "default": false
+          },
           "regexes": {
             "type": "array",
             "items": {
