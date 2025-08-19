@@ -10,6 +10,11 @@
       "description": "Disable all sounds.",
       "default": false
     },
+    "globalVolumeModifier": {
+      "type": "number",
+      "description": "Global volume modifier to increase or decrease the volume of all sounds. 1 is normal volume, 0.5 is half volume, 2 is double volume.",
+      "default": 1
+    },
     "items": {
       "type": "array",
       "items": {
@@ -59,7 +64,7 @@
                 },
                 "volumeModifier": {
                   "type": "number",
-                  "description": "Volume modifier to increase or decrease the volume of the sound. 1 is normal volume, 0.5 is half volume, 2 is double volume.",
+                  "description": "Volume modifier to increase or decrease the volume of the sound. 1 is normal volume, 0.5 is half volume, 2 is double volume. Multiplied by the globalVolumeModifier.",
                   "default": 1
                 }
               },

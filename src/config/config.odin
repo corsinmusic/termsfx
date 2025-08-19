@@ -7,8 +7,9 @@ import "core:strings"
 import r "core:text/regex"
 
 UserConfigSrc :: struct {
-	disable: bool,
-	items:   []struct {
+	disable:              bool,
+	globalVolumeModifier: f32,
+	items:                []struct {
 		disable: bool,
 		regexes: []string,
 		sounds:  []struct {
@@ -23,8 +24,9 @@ UserConfigSrc :: struct {
 }
 
 UserConfig :: struct {
-	is_disabled: bool,
-	items:       []ItemConfig,
+	is_disabled:            bool,
+	global_volume_modifier: f32,
+	items:                  []ItemConfig,
 }
 
 ItemConfig :: struct {
@@ -77,6 +79,7 @@ read_user_config :: proc(
 	json.unmarshal(config_contents, &user_config_src)
 
 	user_config := new(UserConfig)
+	user_config.global_volume_modifier = user_config_src.globalVolumeModifier
 	user_config.is_disabled = user_config_src.disable
 
 	items := [dynamic]ItemConfig{}

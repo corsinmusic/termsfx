@@ -83,6 +83,7 @@ main :: proc() {
 									start_offset = sound.start_offset,
 									duration = sound.duration,
 									volume_modifier = sound.volume_modifier,
+									global_volume_modifier = user_config.global_volume_modifier,
 								},
 							)
 

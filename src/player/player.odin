@@ -10,10 +10,11 @@ AUDIO_CHANNELS :: 0 // 0 means use device's native channel count
 AUDIO_SAMPLE_RATE :: 0 // 0 means use device's native sample rate
 
 PlayAudioRequest :: struct {
-	audio_file_path: string,
-	start_offset:    i64,
-	duration:        i64,
-	volume_modifier: f32,
+	audio_file_path:        string,
+	start_offset:           i64,
+	duration:               i64,
+	volume_modifier:        f32,
+	global_volume_modifier: f32,
 }
 
 PlayAudioError :: union {
@@ -92,7 +93,8 @@ play_audio :: proc(
 	}
 	defer ma.sound_uninit(&sound) // Clean up sound when done
 
-	ma.sound_set_volume(&sound, request.volume_modifier)
+	final_volume := request.global_volume_modifier * request.volume_modifier
+	ma.sound_set_volume(&sound, final_volume)
 
 	// Start playing the sound
 	result = ma.sound_start(&sound)
