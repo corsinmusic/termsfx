@@ -24,7 +24,7 @@ a sound will be played if you have configured a sound with a regex like `git pus
 
 ```bash
 mkdir -p ~/.config/termsfx
-touch ~/.config/termsfx/termsfx.json
+touch ~/.config/termsfx/termsfx.jsonc
 ```
 
 ### Example config file
@@ -37,7 +37,7 @@ touch ~/.config/termsfx/termsfx.json
   - kill.mp3
   - npm.mp3
   - sl.mp3
-  - termsfx.json
+  - termsfx.jsonc
   - whoami.wav
   - git/
     - git_commit.wav
@@ -46,8 +46,8 @@ touch ~/.config/termsfx/termsfx.json
 
 ```
 
-```json
-// ~/.config/termsfx/termsfx.json
+```jsonc
+// ~/.config/termsfx/termsfx.jsonc
 {
   "$schema": "https://raw.githubusercontent.com/corsinmusic/termsfx/refs/heads/main/assets/termsfx.schema.json",
   "disable": false,
@@ -57,9 +57,9 @@ touch ~/.config/termsfx/termsfx.json
       "regexes": ["npm\\s.*install[\\s]?.*", "npm\\s.*i[\\s]?.*"],
       "sounds": [
         {
-          "audioFilePath": "./npm.mp3"
-        }
-      ]
+          "audioFilePath": "./npm.mp3",
+        },
+      ],
     },
     {
       "regexes": ["whoami.*"],
@@ -67,49 +67,49 @@ touch ~/.config/termsfx/termsfx.json
         {
           "audioFilePath": "./whoami.wav",
           "startOffset": 100,
-          "volumeModifier": 0.5
-        }
-      ]
+          "volumeModifier": 0.5,
+        },
+      ],
     },
     {
       "regexes": ["kill\\s.+", "killall\\s.+"],
       "sounds": [
         {
-          "audioFilePath": "./kill.mp3"
-        }
-      ]
+          "audioFilePath": "./kill.mp3",
+        },
+      ],
     },
     {
       "regexes": ["git push.*"],
       "sounds": [
         {
-          "audioFilePath": "./git/git_push.mp3"
-        }
-      ]
+          "audioFilePath": "./git/git_push.mp3",
+        },
+      ],
     },
     {
       "regexes": ["git commit.*"],
       "sounds": [
         {
           "audioFilePath": "./git/git_commit.wav",
-          "chanceModifier": 2
+          "chanceModifier": 2,
         },
         {
           "audioFilePath": "./git/git_commit_alternate.mp3",
-          "volumeModifier": 2
-        }
-      ]
+          "volumeModifier": 2,
+        },
+      ],
     },
     {
       "regexes": ["sl"],
       "sounds": [
         {
           "audioFilePath": "./sl.mp3",
-          "duration": 15000
-        }
-      ]
-    }
-  ]
+          "duration": 15000,
+        },
+      ],
+    },
+  ],
 }
 ```
 

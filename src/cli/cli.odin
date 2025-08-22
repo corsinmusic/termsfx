@@ -2,11 +2,12 @@ package cli
 
 import "core:os"
 
-DEFAULT_CONFIG_FILE_PATH :: "~/.config/termsfx/termsfx.json"
+DEFAULT_CONFIG_FILE_PATH :: "~/.config/termsfx/termsfx.jsonc"
 
 CliArgs :: struct {
 	config_file_path: string,
 	no_output:        bool,
+	timing:           bool,
 	command:          CliCommand,
 	unknown_args:     []UnknownArgument,
 }
